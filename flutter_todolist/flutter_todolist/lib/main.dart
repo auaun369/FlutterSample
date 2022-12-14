@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,6 +40,17 @@ class _MyHomePageState extends State<MyHomePage> {
   int listCount = 0; //ListViewのカウント
   final ContainerTransitionType _transitionType = ContainerTransitionType.fade;
 
+  //Method: Todo編集ページに遷移する
+  void _pushTodoInputPage([ToDoParameterModel? model]) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) {
+          return _DetailPage(model: model);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,38 +60,71 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView.builder(
         itemCount: _todoList.length,
         itemBuilder: (context, index) {
-          return Card(
+          var model = _todoList[index];
+          return Slidable(
+            //▼右方向にリストアイテムをスライドしたとき
+            startActionPane: ActionPane(
+              motion: const ScrollMotion(),
+              extentRatio: 0.25,
+              children: [
+                SlidableAction(
+                  onPressed: (context) {
+                    //▼編集画面に遷移
+                    _pushTodoInputPage(model);
+                  },
+                  backgroundColor: Colors.yellow,
+                  icon: Icons.edit,
+                  label: 'Edit',
+                )
+              ],
+            ),
+            //▼左方向にリストアイテムをスライドしたとき
+            endActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                extentRatio: 0.25,
+                children: [
+                  SlidableAction(
+                      onPressed: (context) {
+                        //▼アイテムを削除する
+                        setState(() => {_todoList.remove(model)});
+                      },
+                      backgroundColor: Colors.red,
+                      icon: Icons.delete,
+                      label: 'Delete')
+                ]),
             child: Column(
               children: <Widget>[
                 _OpenContainerWrapper(
-                  model: _todoList[index],
+                  model: model,
                   transitionType: _transitionType,
                   closedBuilder: (context, action) {
                     return Container(
                       margin: const EdgeInsets.all(10.0),
                       child: ListTile(
-                        title: Text(_todoList[index].content),
+                        title: Text(model.content),
                         leading: Checkbox(
                           value: false,
+                          //▼チェックボックスの状態変更時
                           onChanged: (value) {
                             if (value == true) {
                               setState(() {
-                                _todoList.remove(_todoList[index]);
+                                _todoList.remove(model);
                               });
                             }
                           },
                         ),
-                        subtitle: Text(_todoList[index].date.toString()),
+                        subtitle: Text(model.date.toString()),
+                        selectedColor: Colors.orange,
                       ),
                     );
                   },
-                )
+                ),
               ],
             ),
           );
         },
       ),
-     
+
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
@@ -118,9 +163,9 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class _DetailPage extends StatelessWidget {
-  ToDoParameterModel _model = ToDoParameterModel("", null);
+  ToDoParameterModel? _model = ToDoParameterModel("", null);
 
-  _DetailPage({required ToDoParameterModel model}) {
+  _DetailPage({ToDoParameterModel? model}) {
     _model = model;
   }
 
@@ -134,7 +179,7 @@ class _DetailPage extends StatelessWidget {
               children: [
                 const Expanded(child: Text("内容")),
                 Expanded(
-                  child: Text(_model.content),
+                  child: Text(_model?.content ?? ""),
                 ),
               ],
             ),
@@ -142,7 +187,7 @@ class _DetailPage extends StatelessWidget {
               children: [
                 const Expanded(child: Text("日時")),
                 Expanded(
-                  child: Text(_model.date.toString()),
+                  child: Text(_model?.date?.toString() ?? ""),
                 ),
               ],
             )
