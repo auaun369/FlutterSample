@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'todo_list_store.dart';
+import 'detail_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,13 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   int listCount = 0; //ListViewのカウント
   final ContainerTransitionType _transitionType = ContainerTransitionType.fade;
+  final TodoListStore _store = TodoListStore();
 
   //Method: Todo編集ページに遷移する
   void _pushTodoInputPage([ToDoParameterModel? model]) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) {
-          return _DetailPage(model: model);
+          return DetailPage(model: model);
         },
       ),
     );
@@ -58,9 +61,11 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: ListView.builder(
-        itemCount: _todoList.length,
+        itemCount: _store.count(),
         itemBuilder: (context, index) {
-          var model = _todoList[index];
+          //▼Storeからアイテムの取得
+          var model = _store.getItem(index);
+
           return Slidable(
             //▼右方向にリストアイテムをスライドしたとき
             startActionPane: ActionPane(
@@ -86,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   SlidableAction(
                       onPressed: (context) {
                         //▼アイテムを削除する
-                        setState(() => {_todoList.remove(model)});
+                        setState(() => {_store.delete(model)});
                       },
                       backgroundColor: Colors.red,
                       icon: Icons.delete,
@@ -108,12 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           onChanged: (value) {
                             if (value == true) {
                               setState(() {
-                                _todoList.remove(model);
+                                _store.delete(model);
                               });
                             }
                           },
                         ),
-                        subtitle: Text(model.date.toString()),
+                        subtitle: Text(model.createDate.toString()),
                         selectedColor: Colors.orange,
                       ),
                     );
@@ -124,90 +129,34 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         },
       ),
-
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          setState(() {
-            _todoList.add(ToDoParameterModel("A", DateTime.now()));
-          });
-        },
-      ),
-      // floatingActionButton: OpenContainer(
-      //   transitionType: _transitionType,
-      //   closedElevation: 6,
-      //   closedShape: const RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.all(
-      //       Radius.circular(_fabDimension / 2),
-      //     ),
-      //   ),
-      //   closedColor: Colors.orange,
-      //   closedBuilder: (context, openContainer) {
-      //     return const SizedBox(
-      //       height: _fabDimension,
-      //       width: _fabDimension,
-      //       child: Center(
-      //         child: Icon(
-      //           Icons.add,
-      //           color: Colors.blue,
-      //         ),
-      //       ),
-      //     );
-      //   },
-      //   openBuilder: (context, action) => const _AddPage(),
-      // ),
-    );
-  }
-
-  final List<ToDoParameterModel> _todoList = [];
-}
-
-class _DetailPage extends StatelessWidget {
-  ToDoParameterModel? _model = ToDoParameterModel("", null);
-
-  _DetailPage({ToDoParameterModel? model}) {
-    _model = model;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget contentSection = Container(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                const Expanded(child: Text("内容")),
-                Expanded(
-                  child: Text(_model?.content ?? ""),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                const Expanded(child: Text("日時")),
-                Expanded(
-                  child: Text(_model?.date?.toString() ?? ""),
-                ),
-              ],
-            )
-          ],
-        ));
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Info",
+      floatingActionButton: OpenContainer(
+        transitionType: _transitionType,
+        closedElevation: 6,
+        closedShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(_fabDimension / 2),
+          ),
         ),
-      ),
-      body: ListView(
-        children: [
-          contentSection,
-        ],
+        closedColor: Colors.orange,
+        closedBuilder: (context, openContainer) {
+          return const SizedBox(
+            height: _fabDimension,
+            width: _fabDimension,
+            child: Center(
+              child: Icon(
+                Icons.add,
+                color: Colors.blue,
+              ),
+            ),
+          );
+        },
+        openBuilder: (context, action) => const DetailPage(),
       ),
     );
   }
 }
+
+const double _fabDimension = 56;
 
 class _OpenContainerWrapper extends StatelessWidget {
   const _OpenContainerWrapper(
@@ -223,7 +172,7 @@ class _OpenContainerWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return OpenContainer<bool>(
       transitionType: transitionType,
-      openBuilder: (context, openContainer) => _DetailPage(
+      openBuilder: (context, openContainer) => DetailPage(
         model: model,
       ),
       tappable: true,
@@ -231,74 +180,3 @@ class _OpenContainerWrapper extends StatelessWidget {
     );
   }
 }
-
-//ToDoリスト用のモデル
-class ToDoParameterModel {
-  String content = "";
-  DateTime? date;
-
-  ToDoParameterModel(this.content, this.date);
-}
-
-//class _AddPage extends StatelessWidget {
-//   const _AddPage();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final textTheme = Theme.of(context).textTheme;
-
-//     return WillPopScope(
-//       onWillPop: () {
-//         // var param = ToDoParameterModel();
-//         // param.content = "AAA";
-//         // param.date = DateTime.now();
-//         // Navigator.of(context).pop(param);
-//         return Future.value(true);
-//       },
-//       child: Scaffold(
-//         appBar: AppBar(
-//           title: const Text(
-//             "ToDoListAdd",
-//           ),
-//         ),
-//         body: ListView(
-//           children: [
-//             Container(
-//               color: Colors.red,
-//               child: Padding(
-//                 padding: const EdgeInsets.all(70),
-//                 child: Image.asset('images/splash.png', fit: BoxFit.fill),
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.all(20),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     "sample",
-//                     style: textTheme.headline5!.copyWith(
-//                       color: Colors.black54,
-//                       fontSize: 30,
-//                     ),
-//                   ),
-//                   const SizedBox(
-//                     height: 10,
-//                   ),
-//                   Text(
-//                     "ohayou",
-//                     style: textTheme.bodyText2!.copyWith(
-//                       color: Colors.black54,
-//                       height: 1.5,
-//                       fontSize: 16,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
