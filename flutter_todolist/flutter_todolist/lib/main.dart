@@ -45,17 +45,17 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: _OpenContainerWrapper(
-        //model: _todoList[],
-        transitionType: _transitionType,
-        closedBuilder: (context, openContainer) {
-          return ListView.builder(
-            itemCount: _todoList.length,
-            itemBuilder: (context, index) {
-              return Card(
-                child: Column(
-                  children: <Widget>[
-                    Container(
+      body: ListView.builder(
+        itemCount: _todoList.length,
+        itemBuilder: (context, index) {
+          return Card(
+            child: Column(
+              children: <Widget>[
+                _OpenContainerWrapper(
+                  model: _todoList[index],
+                  transitionType: _transitionType,
+                  closedBuilder: (context, action) {
+                    return Container(
                       margin: const EdgeInsets.all(10.0),
                       child: ListTile(
                         title: Text(_todoList[index].content),
@@ -71,15 +71,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         subtitle: Text(_todoList[index].date.toString()),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
+                    );
+                  },
+                )
+              ],
+            ),
           );
         },
       ),
-
+     
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
@@ -166,18 +166,21 @@ class _DetailPage extends StatelessWidget {
 
 class _OpenContainerWrapper extends StatelessWidget {
   const _OpenContainerWrapper(
-      {required this.closedBuilder,
+      {required this.model,
+      required this.closedBuilder,
       required this.transitionType});
 
+  final ToDoParameterModel model;
   final CloseContainerBuilder closedBuilder;
   final ContainerTransitionType transitionType;
 
   @override
   Widget build(BuildContext context) {
-    ToDoParameterModel model = ToDoParameterModel("", null);
     return OpenContainer<bool>(
       transitionType: transitionType,
-      openBuilder: (context, openContainer) => _DetailPage(model: model,),
+      openBuilder: (context, openContainer) => _DetailPage(
+        model: model,
+      ),
       tappable: true,
       closedBuilder: closedBuilder,
     );
