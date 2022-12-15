@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_todolist/theme_data.dart';
 import 'todo_list_store.dart';
 import 'detail_page.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,12 +15,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.yellow,
+    return ChangeNotifierProvider(
+      create: (context) => MyTheme(),
+      child: Consumer<MyTheme>(
+        builder: (context, value, child) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: value.current,
+            home: const MyHomePage(title: 'ToDoList'),
+          );
+        },
       ),
-      home: const MyHomePage(title: 'ToDoList'),
     );
   }
 }
@@ -62,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: ListView.builder(
         itemCount: _store.count(),
@@ -109,7 +117,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     return Container(
                       margin: const EdgeInsets.all(10.0),
                       child: ListTile(
-                        title: Text(model.content),
+                        title: Text(
+                          model.content,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                         leading: Checkbox(
                           value: model.isDone,
                           //▼チェックボックスの状態変更時
@@ -120,8 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             });
                           },
                         ),
-                        subtitle: Text(model.createDate.toString()),
-                        selectedColor: Colors.orange,
+                        subtitle: Text(model.getFormatCreateDateTime()),
                       ),
                     );
                   },
@@ -139,15 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
               Radius.circular(_fabDimension / 2),
             ),
           ),
-          closedColor: Colors.yellow,
+          closedColor: Theme.of(context).colorScheme.primary,
           closedBuilder: (context, openContainer) {
-            return const SizedBox(
+            return SizedBox(
               height: _fabDimension,
               width: _fabDimension,
               child: Center(
                 child: Icon(
                   Icons.add_task,
-                  color: Colors.lightGreen,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
             );
@@ -180,6 +190,7 @@ class _OpenContainerWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OpenContainer<bool>(
+      closedColor: Theme.of(context).colorScheme.background,
       transitionType: transitionType,
       openBuilder: (context, openContainer) => DetailPage(
         model: model,
@@ -204,13 +215,70 @@ class _CustomBottomAppBar extends StatelessWidget {
     FloatingActionButtonLocation.centerFloat,
   ];
 
+  void showSettingModalBottomSheet(BuildContext buildContext) {
+    showModalBottomSheet<void>(
+      context: buildContext,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              height: 120,
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "アプリケーションテーマ選択",
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  ToggleButtons(
+                    borderRadius: BorderRadius.circular(2),
+                    selectedBorderColor: Theme.of(context).colorScheme.primary,
+                    onPressed: (index) {
+                      setState(() {
+                        setState(() {
+                          Provider.of<MyTheme>(context, listen: false)
+                              .toggele(index == 1);
+                        });
+                      });
+                    },
+                    isSelected: <bool>[
+                      !MyTheme()._isDark,
+                      MyTheme()._isDark,
+                    ],
+                    children: const [
+                      Text(
+                        "ライトテーマ",
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          "ダークテーマ",
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      color: Colors.yellow,
+      color: Theme.of(context).colorScheme.primary,
       shape: shape,
       child: IconTheme(
-        data: const IconThemeData(color: Colors.lightGreen),
+        data: IconThemeData(color: Theme.of(context).colorScheme.secondary),
         child: Row(
           children: [
             if (centerLocations.contains(fabLocation)) const Spacer(),
@@ -220,13 +288,34 @@ class _CustomBottomAppBar extends StatelessWidget {
               onPressed: () {},
             ),
             IconButton(
-              tooltip: 'fav',
+              tooltip: 'settings',
               icon: const Icon(Icons.settings),
-              onPressed: () {},
+              onPressed: () {
+                showSettingModalBottomSheet(context);
+              },
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class MyTheme extends ChangeNotifier {
+  ThemeData current = customLightTheme;
+  bool _isDark = false;
+
+  static final MyTheme _instance = MyTheme.internal();
+
+  MyTheme.internal();
+
+  factory MyTheme() {
+    return _instance;
+  }
+
+  toggele(bool isDark) {
+    _isDark = isDark;
+    current = _isDark ? customDarkTheme : customLightTheme;
+    notifyListeners();
   }
 }

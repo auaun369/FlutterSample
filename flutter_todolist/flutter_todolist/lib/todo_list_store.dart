@@ -26,7 +26,7 @@ class TodoListStore {
   ToDoParameterModel add(bool done, String content, String memo) {
     var id = count() == 0 ? 1 : _list.last.id + 1;
     var date = DateTime.now();
-    var addModel = ToDoParameterModel(id, memo, content, date, done);
+    var addModel = ToDoParameterModel(id, content, memo, date, done);
     _list.add(addModel);
     return addModel;
   }

@@ -63,14 +63,14 @@ class _DetailPageState extends State<DetailPage> {
             ),
             TextField(
               autofocus: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                   labelText: "内容",
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Colors.orange,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(
                       color: Colors.cyan,
                     ),
@@ -87,14 +87,14 @@ class _DetailPageState extends State<DetailPage> {
               keyboardType: TextInputType.multiline,
               maxLines: null,
               minLines: 3,
-              decoration: const InputDecoration(
-                labelText: "詳細",
+              decoration: InputDecoration(
+                labelText: "Memo",
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: Colors.orange,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Colors.cyan,
                   ),
@@ -138,7 +138,8 @@ class _DetailPageState extends State<DetailPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.white,
-                  side: const BorderSide(color: Colors.yellow),
+                  side:
+                      BorderSide(color: Theme.of(context).colorScheme.primary),
                 ),
                 child: const Text(
                   "キャンセル",
