@@ -111,14 +111,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: ListTile(
                         title: Text(model.content),
                         leading: Checkbox(
-                          value: false,
+                          value: model.isDone,
                           //▼チェックボックスの状態変更時
                           onChanged: (value) {
-                            if (value == true) {
-                              setState(() {
-                                _store.delete(model);
-                              });
-                            }
+                            setState(() {
+                              //モデルの更新
+                              _store.update(model, value!);
+                            });
                           },
                         ),
                         subtitle: Text(model.createDate.toString()),
@@ -133,28 +132,34 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
       floatingActionButton: OpenContainer(
-        transitionType: _transitionType,
-        closedElevation: 10,
-        closedShape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(_fabDimension / 2),
-          ),
-        ),
-        closedColor: Colors.yellow,
-        closedBuilder: (context, openContainer) {
-          return const SizedBox(
-            height: _fabDimension,
-            width: _fabDimension,
-            child: Center(
-              child: Icon(
-                Icons.add_task,
-                color: Colors.lightGreen,
-              ),
+          transitionType: _transitionType,
+          closedElevation: 10,
+          closedShape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(_fabDimension / 2),
             ),
-          );
-        },
-        openBuilder: (context, action) => const DetailPage(),
-        onClosed: (data) => setState(() {}),
+          ),
+          closedColor: Colors.yellow,
+          closedBuilder: (context, openContainer) {
+            return const SizedBox(
+              height: _fabDimension,
+              width: _fabDimension,
+              child: Center(
+                child: Icon(
+                  Icons.add_task,
+                  color: Colors.lightGreen,
+                ),
+              ),
+            );
+          },
+          openBuilder: (context, action) => const DetailPage(),
+          onClosed: (data) {
+            setState(() {});
+          }),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: const _CustomBottomAppBar(
+        fabLocation: FloatingActionButtonLocation.centerDocked,
+        shape: CircularNotchedRectangle(),
       ),
     );
   }
@@ -181,6 +186,47 @@ class _OpenContainerWrapper extends StatelessWidget {
       ),
       tappable: false,
       closedBuilder: closedBuilder,
+    );
+  }
+}
+
+class _CustomBottomAppBar extends StatelessWidget {
+  const _CustomBottomAppBar({
+    required this.fabLocation,
+    this.shape,
+  });
+
+  final FloatingActionButtonLocation fabLocation;
+  final NotchedShape? shape;
+
+  static final centerLocations = <FloatingActionButtonLocation>[
+    FloatingActionButtonLocation.centerDocked,
+    FloatingActionButtonLocation.centerFloat,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      color: Colors.yellow,
+      shape: shape,
+      child: IconTheme(
+        data: const IconThemeData(color: Colors.lightGreen),
+        child: Row(
+          children: [
+            if (centerLocations.contains(fabLocation)) const Spacer(),
+            IconButton(
+              tooltip: 'search',
+              icon: const Icon(Icons.favorite),
+              onPressed: () {},
+            ),
+            IconButton(
+              tooltip: 'fav',
+              icon: const Icon(Icons.settings),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

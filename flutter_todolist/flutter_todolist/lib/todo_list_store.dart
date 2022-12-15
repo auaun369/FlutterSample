@@ -23,11 +23,12 @@ class TodoListStore {
   }
 
   //Todoの追加
-  void add(bool done, String content) {
+  ToDoParameterModel add(bool done, String content) {
     var id = count() == 0 ? 1 : _list.last.id + 1;
     var date = DateTime.now();
     var addModel = ToDoParameterModel(id, content, date, done);
     _list.add(addModel);
+    return addModel;
   }
 
   //Todoの更新

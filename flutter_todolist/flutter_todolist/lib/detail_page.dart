@@ -43,14 +43,17 @@ class _DetailPageState extends State<DetailPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: <Widget>[
-            CheckboxListTile(
-              title: const Text('完了'),
-              value: _done,
-              onChanged: ((value) {
-                setState(() {
-                  _done = value ?? false;
-                });
-              }),
+            Visibility(
+              visible: !_isCreateTodo,
+              child: CheckboxListTile(
+                title: const Text('完了'),
+                value: _done,
+                onChanged: ((value) {
+                  setState(() {
+                    _done = value ?? false;
+                  });
+                }),
+              ),
             ),
             const SizedBox(
               height: 20,
@@ -82,12 +85,14 @@ class _DetailPageState extends State<DetailPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    ToDoParameterModel resultModel;
                     if (_isCreateTodo) {
                       //▼Todoを追加する
-                      _store.add(false, _content);
+                      resultModel = _store.add(false, _content);
                     } else {
                       //▼Todoを更新する
                       _store.update(widget.model!, _done, _content);
+                      resultModel = widget.model!;
                     }
                     Navigator.of(context).pop();
                   },
