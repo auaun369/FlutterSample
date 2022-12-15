@@ -23,19 +23,23 @@ class TodoListStore {
   }
 
   //Todoの追加
-  ToDoParameterModel add(bool done, String content) {
+  ToDoParameterModel add(bool done, String content, String memo) {
     var id = count() == 0 ? 1 : _list.last.id + 1;
     var date = DateTime.now();
-    var addModel = ToDoParameterModel(id, content, date, done);
+    var addModel = ToDoParameterModel(id, memo, content, date, done);
     _list.add(addModel);
     return addModel;
   }
 
   //Todoの更新
-  void update(ToDoParameterModel model, bool done, [String? content]) {
+  void update(ToDoParameterModel model, bool done,
+      [String? content, String? memo]) {
     model.isDone = done;
     if (content != null) {
       model.content = content;
+    }
+    if (memo != null) {
+      model.memo = memo;
     }
   }
 
@@ -51,12 +55,15 @@ class ToDoParameterModel {
 
   String content = "";
 
+  String memo = "";
+
   bool isDone = false;
 
   DateTime? createDate;
   DateTime? updateDate;
 
-  ToDoParameterModel(this.id, this.content, this.createDate, this.isDone);
+  ToDoParameterModel(
+      this.id, this.content, this.memo, this.createDate, this.isDone);
 
   //作成日時のフォーマット文字列取得
   String getFormatCreateDateTime() {

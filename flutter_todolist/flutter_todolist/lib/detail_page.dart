@@ -19,6 +19,8 @@ class _DetailPageState extends State<DetailPage> {
 
   late String _content;
 
+  late String _memo;
+
   late bool _done;
 
   // late String _createDate;
@@ -29,6 +31,7 @@ class _DetailPageState extends State<DetailPage> {
     var model = widget.model;
     _isCreateTodo = model == null;
     _content = model?.content ?? "";
+    _memo = model?.memo ?? "";
     _done = model?.isDone ?? false;
   }
 
@@ -78,6 +81,31 @@ class _DetailPageState extends State<DetailPage> {
                 _content = value;
               },
             ),
+            const SizedBox(height: 20),
+            // 詳細のテキストフィールド
+            TextField(
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              minLines: 3,
+              decoration: const InputDecoration(
+                labelText: "詳細",
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.orange,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.cyan,
+                  ),
+                ),
+              ),
+              // TextEditingControllerを使用することで、いちいちsetStateしなくても画面を更新してくれる
+              controller: TextEditingController(text: _memo),
+              onChanged: (String value) {
+                _memo = value;
+              },
+            ),
             const SizedBox(
               height: 60,
             ),
@@ -88,10 +116,10 @@ class _DetailPageState extends State<DetailPage> {
                     ToDoParameterModel resultModel;
                     if (_isCreateTodo) {
                       //▼Todoを追加する
-                      resultModel = _store.add(false, _content);
+                      resultModel = _store.add(false, _content, _memo);
                     } else {
                       //▼Todoを更新する
-                      _store.update(widget.model!, _done, _content);
+                      _store.update(widget.model!, _done, _content, _memo);
                       resultModel = widget.model!;
                     }
                     Navigator.of(context).pop();
