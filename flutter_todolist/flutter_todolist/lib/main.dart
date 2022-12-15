@@ -40,7 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   int listCount = 0; //ListViewのカウント
-  final ContainerTransitionType _transitionType = ContainerTransitionType.fade;
+  final ContainerTransitionType _transitionType =
+      ContainerTransitionType.fadeThrough;
   final TodoListStore _store = TodoListStore();
 
   //Method: Todo編集ページに遷移する
@@ -52,6 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
         },
       ),
     );
+
+    setState(() {});
   }
 
   @override
@@ -131,26 +134,27 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: OpenContainer(
         transitionType: _transitionType,
-        closedElevation: 6,
+        closedElevation: 10,
         closedShape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(_fabDimension / 2),
           ),
         ),
-        closedColor: Colors.orange,
+        closedColor: Colors.yellow,
         closedBuilder: (context, openContainer) {
           return const SizedBox(
             height: _fabDimension,
             width: _fabDimension,
             child: Center(
               child: Icon(
-                Icons.add,
-                color: Colors.blue,
+                Icons.add_task,
+                color: Colors.lightGreen,
               ),
             ),
           );
         },
         openBuilder: (context, action) => const DetailPage(),
+        onClosed: (data) => setState(() {}),
       ),
     );
   }
@@ -175,7 +179,7 @@ class _OpenContainerWrapper extends StatelessWidget {
       openBuilder: (context, openContainer) => DetailPage(
         model: model,
       ),
-      tappable: true,
+      tappable: false,
       closedBuilder: closedBuilder,
     );
   }
