@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     //▼編集画面に遷移
                     _pushTodoInputPage(model);
                   },
-                  backgroundColor: Colors.yellow,
+                  backgroundColor: Colors.green,
                   icon: Icons.edit,
                   label: 'Edit',
                 )
