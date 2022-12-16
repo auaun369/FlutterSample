@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_todolist/completed_task_page.dart';
 import 'package:flutter_todolist/theme_data.dart';
 import 'todo_list_store.dart';
 import 'detail_page.dart';
@@ -84,32 +85,16 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: ListView.builder(
-        itemCount: _store.count(),
+        itemCount: _store.todoTaskCount(),
         itemBuilder: (context, index) {
           //▼Storeからアイテムの取得
-          var model = _store.getItem(index);
+          var model = _store.getTodoTaskItem(index);
 
           return Slidable(
-            //▼右方向にリストアイテムをスライドしたとき
-            startActionPane: ActionPane(
-              motion: const ScrollMotion(),
-              extentRatio: 0.25,
-              children: [
-                SlidableAction(
-                  onPressed: (context) {
-                    //▼編集画面に遷移
-                    _pushTodoInputPage(model);
-                  },
-                  backgroundColor: Colors.yellow,
-                  icon: Icons.edit,
-                  label: 'Edit',
-                )
-              ],
-            ),
             //▼左方向にリストアイテムをスライドしたとき
             endActionPane: ActionPane(
                 motion: const ScrollMotion(),
-                extentRatio: 0.25,
+                extentRatio: 0.5,
                 children: [
                   SlidableAction(
                       onPressed: (context) {
@@ -118,7 +103,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       backgroundColor: Colors.red,
                       icon: Icons.delete,
-                      label: 'Delete')
+                      label: 'Delete'),
+                  SlidableAction(
+                    onPressed: (context) {
+                      //▼編集画面に遷移
+                      _pushTodoInputPage(model);
+                    },
+                    backgroundColor: Colors.yellow,
+                    icon: Icons.edit,
+                    label: 'Edit',
+                  )
                 ]),
             child: Column(
               children: <Widget>[
@@ -176,12 +170,15 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           openBuilder: (context, action) => const DetailPage(),
           onClosed: (data) {
-            setState(() {});
+            setState(() {
+              print('onclose');
+            });
           }),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const _CustomBottomAppBar(
+      bottomNavigationBar: _CustomBottomAppBar(
         fabLocation: FloatingActionButtonLocation.centerDocked,
-        shape: CircularNotchedRectangle(),
+        shape: const CircularNotchedRectangle(),
+        completedTaskReturnFunc: () => setState(() {}),
       ),
     );
   }
@@ -217,8 +214,10 @@ class _CustomBottomAppBar extends StatelessWidget {
   const _CustomBottomAppBar({
     required this.fabLocation,
     this.shape,
+    this.completedTaskReturnFunc,
   });
 
+  final Function? completedTaskReturnFunc;
   final FloatingActionButtonLocation fabLocation;
   final NotchedShape? shape;
 
@@ -294,10 +293,30 @@ class _CustomBottomAppBar extends StatelessWidget {
         child: Row(
           children: [
             if (centerLocations.contains(fabLocation)) const Spacer(),
-            IconButton(
-              tooltip: 'search',
-              icon: const Icon(Icons.favorite),
-              onPressed: () {},
+            OpenContainer(
+              transitionType: ContainerTransitionType.fade,
+              closedElevation: 0,
+              closedBuilder: (context, action) {
+                return SizedBox(
+                  height: _fabDimension,
+                  width: _fabDimension,
+                  child: Center(
+                    child: Icon(
+                      Icons.done_outline,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                );
+              },
+              closedColor: Theme.of(context).colorScheme.primary,
+              openBuilder: (context, action) {
+                return const CompletedTaskListPage(
+                  title: "完了済みタスク",
+                );
+              },
+              onClosed: (data) {
+                completedTaskReturnFunc?.call();
+              },
             ),
             IconButton(
               tooltip: 'settings',

@@ -16,17 +16,28 @@ class TodoListStore {
     return _instance;
   }
 
-  int count() {
-    return _list.length;
+  int todoTaskCount() {
+    return _list.where((element) => !element.isDone).length;
   }
 
-  ToDoParameterModel getItem(int index) {
-    return _list[index];
+  //完了済みのタスク数取得
+  int completedTaskCount() {
+    return _list.where((element) => element.isDone).length;
+  }
+
+  ToDoParameterModel getTodoTaskItem(int index) {
+    var targetList = _list.where((element) => !element.isDone).toList();
+    return targetList[index];
+  }
+
+  ToDoParameterModel getCompletedTaskItem(int index) {
+    var targetList = _list.where((element) => element.isDone).toList();
+    return targetList[index];
   }
 
   //Todoの追加
   ToDoParameterModel add(bool done, String content, String memo) {
-    var id = count() == 0 ? 1 : _list.last.id + 1;
+    var id = todoTaskCount() == 0 ? 1 : _list.last.id + 1;
     var date = DateTime.now();
     var addModel = ToDoParameterModel(id, content, memo, date, done, date);
     _list.add(addModel);

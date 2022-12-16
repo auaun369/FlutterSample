@@ -113,14 +113,12 @@ class _DetailPageState extends State<DetailPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    ToDoParameterModel resultModel;
                     if (_isCreateTodo) {
                       //▼Todoを追加する
-                      resultModel = _store.add(false, _content, _memo);
+                      _store.add(false, _content, _memo);
                     } else {
                       //▼Todoを更新する
                       _store.update(widget.model!, _done, _content, _memo);
-                      resultModel = widget.model!;
                     }
                     Navigator.of(context).pop();
                   },
