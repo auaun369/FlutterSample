@@ -46,18 +46,6 @@ class _DetailPageState extends State<DetailPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: <Widget>[
-            Visibility(
-              visible: !_isCreateTodo,
-              child: CheckboxListTile(
-                title: const Text('完了'),
-                value: _done,
-                onChanged: ((value) {
-                  setState(() {
-                    _done = value ?? false;
-                  });
-                }),
-              ),
-            ),
             const SizedBox(
               height: 20,
             ),
