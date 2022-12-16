@@ -199,6 +199,7 @@ class _OpenContainerWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OpenContainer<bool>(
+      closedElevation: 2,
       closedColor: Theme.of(context).colorScheme.background,
       transitionType: transitionType,
       openBuilder: (context, openContainer) => DetailPage(
@@ -253,6 +254,7 @@ class _CustomBottomAppBar extends StatelessWidget {
                         setState(() {
                           Provider.of<MyTheme>(context, listen: false)
                               .toggele(index == 1);
+                          Navigator.pop(context);
                         });
                       });
                     },
